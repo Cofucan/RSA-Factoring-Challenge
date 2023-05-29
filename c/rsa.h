@@ -11,8 +11,8 @@
 
 void factorize_unsorted(FILE *file);
 void factorize_sorted(FILE *file);
-void algo_trival_div(size_t number);
+void algo_trivial_div(size_t number);
+void algo_trivial_div_gmp(char *numberStr);
 void remove_newline(char *str, size_t len);
-void algo_trival_div_gmp(char *numberStr);
 
 #endif /* _RSA_H_ */

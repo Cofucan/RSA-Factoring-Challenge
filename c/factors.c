@@ -42,12 +42,12 @@ void factorize_unsorted(FILE *file)
 		if (numberLen < 9)
 		{
 			num = atoi(number);
-			algo_trival_div(num);
+			algo_trivial_div(num);
 		}
 		else
 		{
 			remove_newline(number, numberLen);
-			algo_trival_div_gmp(number);
+			algo_trivial_div_gmp(number);
 		}
 	}
 
