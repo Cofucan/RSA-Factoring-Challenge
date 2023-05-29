@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.Rmd": "rmd",
+        "*.rmd": "markdown",
+        "math.h": "c",
+        "gmp.h": "c"
+    }
+}
