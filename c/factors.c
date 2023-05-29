@@ -1,16 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <assert.h>
-#include <math.h>
-#include <gmp.h>
-
-void factorize_unsorted(FILE *file);
-void factorize_sorted(FILE *file);
-void algo_trival_div(size_t number);
-void remove_newline(char *str, size_t len);
-void algo_trival_div_gmp(char *numberStr);
+#include "rsa.h"
 
 int main(int argc, char *argv[])
 {
@@ -50,7 +38,7 @@ void factorize_unsorted(FILE *file)
 
 	while (getline(&number, &numberLen, file) != -1)
 	{
-		printf("len -> %lu\n", numberLen);
+		numberLen = strlen(number);
 		if (numberLen < 9)
 		{
 			num = atoi(number);
