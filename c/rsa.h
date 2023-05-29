@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _RSA_H_
+#define _RSA_H_
 
 #include <stdio.h>
 #include <string.h>
@@ -13,3 +14,5 @@ void factorize_sorted(FILE *file);
 void algo_trival_div(size_t number);
 void remove_newline(char *str, size_t len);
 void algo_trival_div_gmp(char *numberStr);
+
+#endif /* _RSA_H_ */
