@@ -1,0 +1,100 @@
+#include "rsa.h"
+
+typedef struct {
+    unsigned long long x;
+    unsigned long long y;
+} QuadraticSievePair;
+
+unsigned long long gcd(unsigned long long a, unsigned long long b) {
+    if (b == 0)
+        return a;
+    return gcd(b, a % b);
+}
+
+unsigned long long mod_pow(unsigned long long base, unsigned long long exponent, unsigned long long modulus) {
+    unsigned long long result = 1;
+    base = base % modulus;
+    while (exponent > 0) {
+        if (exponent % 2 == 1)
+            result = (result * base) % modulus;
+        exponent = exponent >> 1;
+        base = (base * base) % modulus;
+    }
+    return result;
+}
+
+QuadraticSievePair findSmoothPair(unsigned long long n, unsigned long long B) {
+    QuadraticSievePair pair;
+    unsigned long long x = (unsigned long long)sqrt(n);
+    unsigned long long y = 0;
+
+    while (y < B) {
+        unsigned long long temp = (x * x) - n;
+        if (temp == y * y) {
+            pair.x = x;
+            pair.y = y;
+            return pair;
+        }
+        y++;
+        x++;
+    }
+    pair.x = 0;
+    pair.y = 0;
+    return pair;
+}
+
+unsigned long long algo_quadratic_sieve(unsigned long long n)
+{
+    unsigned long long B = (unsigned long long)sqrt(n) + 1;
+    unsigned long long M = B * B - n;
+    unsigned long long sieveBound = (unsigned long long)sqrt(M) + 1;
+    unsigned long long *sieve = (unsigned long long *)calloc(sieveBound, sizeof(unsigned long long));
+    unsigned long long i, j;
+
+    for (i = 2; i < sieveBound; i++) {
+        if (sieve[i] == 0) {
+            for (j = i * i; j < sieveBound; j += i)
+                sieve[j] = 1;
+
+            if (M % i == 0) {
+                unsigned long long p = i;
+                unsigned long long q = M / i;
+
+                QuadraticSievePair pairP = findSmoothPair(p, B);
+                QuadraticSievePair pairQ = findSmoothPair(q, B);
+
+                if (pairP.x > 0 && pairQ.x > 0) {
+                    unsigned long long x1 = (pairP.x * pairQ.x + n * pairP.y * pairQ.y) % n;
+                    unsigned long long x2 = (pairP.x * pairQ.y + pairP.y * pairQ.x) % n;
+                    free(sieve);
+                    return gcd(x1, n) * gcd(x2, n);
+                }
+            }
+        }
+    }
+    free(sieve);
+    return 1;
+}
+int main() {
+    mpz_t number, factor;
+    mpz_inits(number, factor, NULL);
+    mpz_set_str(number, "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890", 10); // Replace with the number you want to factorize
+    printf("Factorizing ");
+    mpz_out_str(stdout, 10, number);
+    printf("...\n");
+    algo_quadratic_sieve(factor, number);
+    if (mpz_cmp_ui(factor, 1) == 0 || mpz_cmp(factor, number) == 0)
+        printf("Failed to factorize the number.\n");
+    else {
+        printf("The number ");
+        mpz_out_str(stdout, 10, number);
+        printf(" is a product of the factors ");
+        mpz_out_str(stdout, 10, factor);
+        printf(" and ");
+        mpz_divexact(factor, number, factor);
+        mpz_out_str(stdout, 10, factor);
+        printf(".\n");
+    }
+    mpz_clears(number, factor, NULL);
+    return 0;
+}

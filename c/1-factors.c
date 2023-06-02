@@ -23,15 +23,13 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	factorize_unsorted(file);
-	/* factorize_sorted(file); */
+	factorize_any(file);
 
 	fclose(file);
-
 	return (0);
 }
 
-void factorize_unsorted(FILE *file)
+void factorize_any(FILE *file)
 {
 	size_t num, numberLen = 0;
 	char *number = NULL;
@@ -42,25 +40,19 @@ void factorize_unsorted(FILE *file)
 		if (numberLen < 9)
 		{
 			num = atoi(number);
-			algo_trivial_div(num);
+			algo_trivial_division_s(num);
 		}
-		else
+		else if (numberLen >= 9 && numberLen <= 13)
 		{
 			remove_newline(number, numberLen);
-			algo_trivial_div_gmp(number);
+			algo_trivial_division(number);
+		}
+		else if (numberLen > 13)
+		{
+			remove_newline(number, numberLen);
+			algo_quadratic_sieve(number);
 		}
 	}
 
 	free(number);
-}
-
-void factorize_sorted(FILE *file)
-{
-	(void) file;
-}
-
-void remove_newline(char *str, size_t len)
-{
-	if (str[len - 1] == '\n')
-		str[len - 1] = '\0';
 }

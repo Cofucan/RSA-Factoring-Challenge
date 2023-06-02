@@ -1,6 +1,6 @@
 #include "rsa.h"
 
-void algo_trivial_div(size_t number)
+void algo_trivial_division_s(size_t number)
 {
 	size_t divisor;
 	size_t max_divisor;
@@ -23,7 +23,7 @@ void algo_trivial_div(size_t number)
 	}
 }
 
-void algo_trivial_div_gmp(char *numberStr)
+void algo_trivial_division(char *numberStr)
 {
     int base, success, q_cmp, div_cmp;
     mpz_t number, divisor, max_divisor, remainder, p, q;
