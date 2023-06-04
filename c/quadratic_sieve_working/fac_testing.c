@@ -7,8 +7,11 @@ static inline void fac_mini_tests(fac_params *m)
 	// Welcome to the testing feature, it uses 2 numbers + a computation sheet
 
 	cint nums[2];
-	for (int i = 0; i < 2; ++i)
-		cint_init(&nums[i], 2048, 0);
+	int c;
+	qs_sm i, n;
+
+	for (c = 0; c < 2; ++c)
+		cint_init(&nums[c], 2048, 0);
 	cint *N = &nums[0], *FACTOR = N + 1;
 	cint_sheet *sheet = cint_new_sheet(1 << 10);
 	fac_params params = {0};
@@ -47,7 +50,7 @@ static inline void fac_mini_tests(fac_params *m)
 		else
 		{
 			trial_max = 4669921;
-			for (qs_sm i = 0; i < 250; trial_max >>= (bits < i) * 1, i += 30)
+			for (i = 0; i < 250; trial_max >>= (bits < i) * 1, i += 30)
 				;
 		}
 
@@ -56,7 +59,7 @@ static inline void fac_mini_tests(fac_params *m)
 		if (cint_is_prime(sheet, N, 2))
 			goto retry; // a prime number isn't submitted
 
-		for (qs_sm n = 3; n < trial_max; n += 2)
+		for (n = 3; n < trial_max; n += 2)
 			if (is_prime_4669921(n))
 				if (simple_int_to_cint(FACTOR, n), cint_remove(sheet, N, FACTOR))
 					goto retry; // a trial divisible number isn't submitted
@@ -80,7 +83,7 @@ static inline void fac_mini_tests(fac_params *m)
 		if (params.silent == 0)
 			printf("    [ %.2fs ] ", took / 1e6);
 
-		for (int i = 0; factors[i]; ++i)
+		for (i = 0; factors[i]; ++i)
 		{
 			str = cint_to_string(&factors[i]->cint, 10);
 			// a power of the answered factor must be removable from N.
@@ -141,6 +144,6 @@ static inline void fac_mini_tests(fac_params *m)
 
 	// Clear the numbers + the computation sheet.
 	cint_clear_sheet(sheet);
-	for (int i = 0; i < 2; ++i)
+	for (i = 0; i < 2; ++i)
 		free(nums[i].mem);
 }

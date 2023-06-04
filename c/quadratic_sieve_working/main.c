@@ -5,14 +5,16 @@
 #include "fac_quadratic.c" // quadratic sieve source.
 #include "fac_lanczos.c"   // quadratic sieve Lanczos.
 #include "fac_testing.c"   // quadratic sieve tests.
+#include <unistd.h>
 
 // Why this project use "cint" instead of GMP ?
 // - Author search to understand the problematics of 64+ bit integers.
 // - Original software goal was to factor 200-bit RSA in 30 seconds.
 // - "cint" allow us to see what is sufficient to reach the goal.
 
-static inline void fac_display_verbose(fac_cint **ans);
+static inline void fac_display_verbose(char *input_num, fac_cint **ans);
 static inline void fac_display_help(char *name);
+void remove_newline(char *str, size_t len);
 
 int main(int argc, char *argv[])
 {
@@ -20,30 +22,60 @@ int main(int argc, char *argv[])
 	fac_params config = {0};
 	char *n; // the string to factor in base 10.
 	n = fac_fill_params(&config, argc, argv);
-	if (config.testing)
-		fac_mini_tests(&config);
-	else if (config.help)
-		fac_display_help(argv[0]);
-	else if (n)
+	n = argv[1];
+
+	FILE *file = NULL;
+	size_t numberLen = 0;
+
+	if (argc != 2)
 	{
-		const int bits = 64 + 4 * (int)strlen(n);
-		cint_init_by_string(&N, bits, n, 10);	   // init the number as a cint.
-		fac_cint **answer = c_factor(&N, &config); // execute the routine.
-		fac_display_verbose(answer);			   // print answer.
-		free(answer);							   // release answer memory.
-		free(N.mem);							   // release number memory.
+		fprintf(stderr, "Usage: %s <file>\n", argv[0]);
+		exit(EXIT_FAILURE);
 	}
-	else
-		fputs("usage : qs [-h] [-s] [number]", stderr);
+	if (access(argv[1], R_OK) == -1)
+	{
+		perror("");
+		exit(EXIT_FAILURE);
+	}
+	file = fopen(argv[1], "r");
+	if (!file)
+	{
+		perror("");
+		exit(EXIT_FAILURE);
+	}
+
+	if (getline(&n, &numberLen, file) == -1)
+	{
+		perror("");
+		exit(EXIT_FAILURE);
+	}
+	numberLen = strlen(n);
+	remove_newline(n, numberLen);
+
+	const int bits = 64 + 4 * (int)numberLen;
+	cint_init_by_string(&N, bits, n, 10);	   // init the number as a cint.
+	fac_cint **answer = c_factor(&N, &config); // execute the routine.
+	fac_display_verbose(n, answer);			   // print answer.
+	free(answer);							   // release answer memory.
+	free(N.mem);							   // release number memory.
+
 	return 0;
 }
 
-static inline void fac_display_verbose(fac_cint **ans)
+void remove_newline(char *str, size_t len)
 {
-	for (int i = 0; i < 100; ++i)
+	if (str[len - 1] == '\n')
+		str[len - 1] = '\0';
+}
+
+static inline void fac_display_verbose(char *input_num, fac_cint **ans)
+{
+	int i;
+	for (i = 0; i < 100; ++i)
 		putchar(' ');
 	putchar('\r');
 	char *str = fac_answer_to_string(ans);
+	printf("%s=", input_num);
 	puts(str);
 	free(str);
 }

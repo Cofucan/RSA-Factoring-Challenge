@@ -532,7 +532,7 @@ char *fac_answer_to_string(fac_cint **ans)
 		if (ans[i]->power > 1)
 			strcat(str++, ")");
 		if (ans[i + 1])
-			str += sprintf(str, " * ");
+			str += sprintf(str, "*");
 		free(s);
 	}
 	assert(str <= res + bytes);
