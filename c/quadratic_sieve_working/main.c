@@ -1,0 +1,110 @@
+#include "avl.c"		   // the trees.
+#include "cint.c"		   // the integers.
+#include "fac_headers.h"   // factor headers.
+#include "fac_utils.c"	   // utilities and front-end.
+#include "fac_quadratic.c" // quadratic sieve source.
+#include "fac_lanczos.c"   // quadratic sieve Lanczos.
+#include "fac_testing.c"   // quadratic sieve tests.
+#include <unistd.h>
+
+// Why this project use "cint" instead of GMP ?
+// - Author search to understand the problematics of 64+ bit integers.
+// - Original software goal was to factor 200-bit RSA in 30 seconds.
+// - "cint" allow us to see what is sufficient to reach the goal.
+
+static inline void fac_display_verbose(char *input_num, fac_cint **ans);
+static inline void fac_display_help(char *name);
+void remove_newline(char *str, size_t len);
+
+int main(int argc, char *argv[])
+{
+	cint N;
+	fac_params config = {0};
+	char *n; // the string to factor in base 10.
+	n = fac_fill_params(&config, argc, argv);
+	n = argv[1];
+
+	FILE *file = NULL;
+	size_t numberLen = 0;
+
+	if (argc != 2)
+	{
+		fprintf(stderr, "Usage: %s <file>\n", argv[0]);
+		exit(EXIT_FAILURE);
+	}
+	if (access(argv[1], R_OK) == -1)
+	{
+		perror("");
+		exit(EXIT_FAILURE);
+	}
+	file = fopen(argv[1], "r");
+	if (!file)
+	{
+		perror("");
+		exit(EXIT_FAILURE);
+	}
+
+	if (getline(&n, &numberLen, file) == -1)
+	{
+		perror("");
+		exit(EXIT_FAILURE);
+	}
+	numberLen = strlen(n);
+	remove_newline(n, numberLen);
+
+	const int bits = 64 + 4 * (int)numberLen;
+	cint_init_by_string(&N, bits, n, 10);	   // init the number as a cint.
+	fac_cint **answer = c_factor(&N, &config); // execute the routine.
+	fac_display_verbose(n, answer);			   // print answer.
+	free(answer);							   // release answer memory.
+	free(N.mem);							   // release number memory.
+
+	return 0;
+}
+
+void remove_newline(char *str, size_t len)
+{
+	if (str[len - 1] == '\n')
+		str[len - 1] = '\0';
+}
+
+static inline void fac_display_verbose(char *input_num, fac_cint **ans)
+{
+	int i;
+	for (i = 0; i < 100; ++i)
+		putchar(' ');
+	putchar('\r');
+	char *str = fac_answer_to_string(ans);
+	printf("%s=", input_num);
+	puts(str);
+	free(str);
+}
+
+static inline void fac_display_help(char *name)
+{
+	char *str = 1 + strrchr(name, '/');
+	if (str < name)
+		str = 1 + strrchr(name, '\\');
+	if (str < name)
+		str = name;
+	puts("=== [ Welcome to the factor function help ] === \n");
+	printf(" - use     ./%s 123            to see the factors of 123\n", str);
+	printf(" - use     ./%s -test=150      to see a one-minute 150-bit factorization test\n", str);
+	printf(" - use     ./%s -limit=250     to define a limit of bit for the quadratic sieve, default to 220-bit\n", str);
+	printf(" - use     ./%s -s [number]    to not see the progress of quadratic sieve\n", str);
+	printf(" - numbers around quotes are identified not to be prime\n");
+	printf(" - numbers shown have passed some tests like perfect square, perfect cube, primality, trial divisions\n");
+	printf(" - best function for > 64-bit numbers is a quadratic sieve largely inspired by a William Hart FLINT implementation\n");
+	printf(" - use     gcc -Wall -pedantic -O3 main.c -o qs     to make the software compile with a great optimizer\n");
+	printf(" - your software source is kindly hosted on the internet at https://github.com/michel-leonard/C-Quadratic-Sieve\n\n");
+	printf("Bests in math with your factorizer...\n");
+	putchar('\n');
+}
+
+// Development (Linux) done with gcc version 8.3.0 (Debian 8.3.0-6)
+// Development (Microsoft Windows) done with gcc version 11.2.0 (MinGW-W64 x86_64-ucrt-posix-seh)
+// In 2022, the common software speed is 1s for 170-bit RSA, 1 min for 230-bit, 10 min for 260-bit, 2 hours for 300-bit.
+
+// ================================================================================================
+
+// See : https://www2.karlin.mff.cuni.cz/~krypto/Implementace_MPQS_SIQS_files/main_file.pdf for interesting precisions.
