@@ -10,22 +10,22 @@ void mod_pow(mpz_t result, mpz_t base, mpz_t exponent, mpz_t modulus)
     mpz_powm(result, base, exponent, modulus);
 }
 
-void findSmoothPair(mpz_t x, mpz_t y, mpz_t n, mpz_t B)
+void findSmoothPair(mpz_t *x, mpz_t *y, mpz_t n, mpz_t B)
 {
     mpz_t temp;
     mpz_init(temp);
 
-    mpz_sqrt(x, n);
-    mpz_set_ui(y, 0);
+    mpz_sqrt(*x, n);
+    mpz_set_ui(*y, 0);
 
-    while (mpz_cmp(y, B) < 0) {
-        mpz_pow_ui(temp, x, 2);
+    while (mpz_cmp(*y, B) < 0) {
+        mpz_pow_ui(temp, *x, 2);
         mpz_sub(temp, temp, n);
-        mpz_pow_ui(y, y, 2);
-        if (mpz_cmp(temp, y) == 0)
+        mpz_pow_ui(temp, *y, 2);
+        if (mpz_cmp(temp, *y) == 0)
             break;
-        mpz_add_ui(x, x, 1);
-        mpz_add_ui(y, y, 1);
+        mpz_add_ui(*x, *x, 1);
+        mpz_add_ui(*y, *y, 1);
     }
 
     mpz_clear(temp);
@@ -46,10 +46,11 @@ void algo_quadratic_sieve(char *numberStr)
     mpz_sub(M, M, n);
     mpz_sqrt(sieveBound, M);
     mpz_add_ui(sieveBound, sieveBound, 1);
-    sieve = (mpz_t*)malloc(mpz_size(sieveBound) * sizeof(mpz_t));
+    sieve = (mpz_t*)malloc(mpz_get_ui(sieveBound) * sizeof(mpz_t));
 
     for (i = 2; i < mpz_get_ui(sieveBound); i++)
     {
+        mpz_init(sieve[i]);
         if (mpz_cmp_ui(sieve[i], 0) == 0) {
             for (j = i * i; j < mpz_get_ui(sieveBound); j += i)
                 mpz_set_ui(sieve[j], 1);
@@ -62,8 +63,8 @@ void algo_quadratic_sieve(char *numberStr)
 
                 mpz_inits(pairP.x, pairP.y, pairQ.x, pairQ.y, NULL);
 
-                findSmoothPair(pairP.x, pairP.y, p, B);
-                findSmoothPair(pairQ.x, pairQ.y, q, B);
+                findSmoothPair(&pairP.x, &pairP.y, p, B);
+                findSmoothPair(&pairQ.x, &pairQ.y, q, B);
 
                 mpz_inits(x1, x2, NULL);
 
@@ -77,7 +78,7 @@ void algo_quadratic_sieve(char *numberStr)
                     mpz_mul(x1, pairP.x, pairQ.y);
                     mpz_mul(q, pairP.y, pairQ.x);
                     mpz_add(x1, x1, q);
-                    mpz_mod(result, result, n);
+                    mpz_mod(x1, x1, n);
 
                     mpz_clears(p, q, pairP.x, pairP.y, pairQ.x, pairQ.y, x1, x2, NULL);
                     break;
