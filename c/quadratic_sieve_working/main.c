@@ -15,6 +15,7 @@
 static inline void fac_display_verbose(char *input_num, fac_cint **ans);
 static inline void fac_display_help(char *name);
 void remove_newline(char *str, size_t len);
+char *exchange_primes(char *str);
 
 int main(int argc, char *argv[])
 {
@@ -71,13 +72,42 @@ void remove_newline(char *str, size_t len)
 static inline void fac_display_verbose(char *input_num, fac_cint **ans)
 {
 	int i;
+	char *str_primes_exchanged;
+
 	for (i = 0; i < 100; ++i)
 		putchar(' ');
 	putchar('\r');
 	char *str = fac_answer_to_string(ans);
 	printf("%s=", input_num);
-	puts(str);
+	str_primes_exchanged = exchange_primes(str);
+	puts(str_primes_exchanged);
+
+	free(str_primes_exchanged);
 	free(str);
+}
+
+char *exchange_primes(char *str)
+{
+	char *left, *right, *new_str;
+	unsigned int x;
+	
+	new_str = malloc(strlen(str));
+	left = right = str;
+
+	while (*right != '*')
+		right++;
+	
+	right++;
+	for (x = 0; *right; x++, right++)
+		new_str[x] = *right;
+	
+	new_str[x] = '*';
+
+	x++;
+	for ( ; *left != '*'; x++, left++)
+		new_str[x] = *left;
+	
+	return new_str;
 }
 
 static inline void fac_display_help(char *name)
