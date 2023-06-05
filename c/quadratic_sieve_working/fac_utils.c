@@ -178,8 +178,8 @@ int fac_pollard_rho_63_bits(fac_caller *m)
 		}; // number and its factor.
 		for (size_t limit = 7; n[1] == 1 || n[0] == n[1]; ++limit)
 		{
-			if (m->params->silent == 0)
-				fac_display_progress("Pollard Rho", 100. * (double)limit / 21);
+			// if (m->params->silent == 0)
+			// 	fac_display_progress("Pollard Rho", 100. * (double)limit / 21);
 			size_t a = -1, b = 2, c = limit;
 			qs_md d, e = rand(), f = 1;
 			for (n[1] = 1, d = e %= n[0]; n[1] == 1 && --c; e = d, b <<= 1, a = -1)
