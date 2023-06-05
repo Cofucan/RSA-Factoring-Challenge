@@ -74,9 +74,9 @@ static inline void fac_display_verbose(char *input_num, fac_cint **ans)
 	int i;
 	char *str_primes_exchanged;
 
-	for (i = 0; i < 100; ++i)
-		putchar(' ');
-	putchar('\r');
+	// for (i = 0; i < 100; ++i)
+	// 	putchar(' ');
+	// putchar('\r');
 	char *str = fac_answer_to_string(ans);
 	printf("%s=", input_num);
 	str_primes_exchanged = exchange_primes(str);
